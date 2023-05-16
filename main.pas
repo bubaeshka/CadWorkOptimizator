@@ -37,6 +37,7 @@ begin
     except
       //идет работа под отладчиком и стоит флажок Stop on Delfi exceptions, поэтому увидеть можно запустив exe-шник
       on E: EInOutError do ShowMessage(E.Message); 
+      on E: EConvertError do ShowMessage(E.Message); 
     end;
   end;
 
