@@ -10,16 +10,31 @@ object Form1: TForm1
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnCreate = FormCreate
   OnDestroy = FormDestroy
   TextHeight = 15
   object Button1: TButton
-    Left = 248
-    Top = 288
+    Left = 264
+    Top = 409
     Width = 75
     Height = 25
     Caption = #1054#1090#1082#1088#1099#1090#1100
     TabOrder = 0
     OnClick = Button1Click
+  end
+  object Memo1: TMemo
+    Left = 32
+    Top = 40
+    Width = 577
+    Height = 49
+    TabOrder = 1
+  end
+  object Memo2: TMemo
+    Left = 32
+    Top = 112
+    Width = 577
+    Height = 49
+    TabOrder = 2
   end
   object OpenDialog1: TOpenDialog
     Filter = 'BVN '#1092#1072#1081#1083' Hundegger|*.bvn'
