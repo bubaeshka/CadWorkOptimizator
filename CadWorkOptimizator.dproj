@@ -103,6 +103,7 @@
             <FormType>dfm</FormType>
         </DCCReference>
         <DCCReference Include="optimizator.pas"/>
+        <DCCReference Include="BVNItem.pas"/>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

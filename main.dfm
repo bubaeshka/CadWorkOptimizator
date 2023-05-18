@@ -36,6 +36,46 @@ object Form1: TForm1
     Height = 49
     TabOrder = 2
   end
+  object Memo3: TMemo
+    Left = 32
+    Top = 192
+    Width = 577
+    Height = 97
+    TabOrder = 3
+  end
+  object Edit1: TEdit
+    Left = 32
+    Top = 312
+    Width = 57
+    Height = 23
+    TabOrder = 4
+    Text = 'Edit1'
+  end
+  object Button2: TButton
+    Left = 104
+    Top = 311
+    Width = 75
+    Height = 25
+    Caption = 'Button2'
+    TabOrder = 5
+    OnClick = Button2Click
+  end
+  object Edit2: TEdit
+    Left = 240
+    Top = 312
+    Width = 369
+    Height = 23
+    TabOrder = 6
+    Text = 'Edit1'
+  end
+  object Edit3: TEdit
+    Left = 240
+    Top = 341
+    Width = 369
+    Height = 23
+    TabOrder = 7
+    Text = 'Edit1'
+  end
   object OpenDialog1: TOpenDialog
     Filter = 'BVN '#1092#1072#1081#1083' Hundegger|*.bvn'
     Left = 24

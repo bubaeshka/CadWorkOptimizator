@@ -13,9 +13,15 @@ type
     OpenDialog1: TOpenDialog;
     Memo1: TMemo;
     Memo2: TMemo;
+    Memo3: TMemo;
+    Edit1: TEdit;
+    Button2: TButton;
+    Edit2: TEdit;
+    Edit3: TEdit;
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -53,6 +59,13 @@ begin
     Memo2.Lines[1]:='борода';
     BVN.getBVInfo(Memo2.Lines);
   end;
+end;
+
+procedure TForm1.Button2Click(Sender: TObject);
+begin
+  BVN.getBVNItemTextContent(StrtoInt(Edit1.Text),Memo3.Lines);
+  Edit2.Text:=BVN.getBVNItemPartnumber(StrtoInt(Edit1.Text));
+  Edit3.Text:=BVN.getBVNItemComment(StrtoInt(Edit1.Text));
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);

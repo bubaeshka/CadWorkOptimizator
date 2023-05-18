@@ -3,7 +3,8 @@ program CadWorkOptimizator;
 uses
   Vcl.Forms,
   main in 'main.pas' {Form1},
-  optimizator in 'optimizator.pas';
+  optimizator in 'optimizator.pas',
+  BVNItem in 'BVNItem.pas';
 
 {$R *.res}
 
