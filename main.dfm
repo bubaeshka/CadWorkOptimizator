@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Form1'
-  ClientHeight = 442
+  ClientHeight = 487
   ClientWidth = 628
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -76,9 +76,34 @@ object Form1: TForm1
     TabOrder = 7
     Text = 'Edit1'
   end
+  object Edit4: TEdit
+    Left = 240
+    Top = 370
+    Width = 113
+    Height = 23
+    TabOrder = 8
+    Text = 'Edit1'
+  end
+  object Edit5: TEdit
+    Left = 359
+    Top = 370
+    Width = 113
+    Height = 23
+    TabOrder = 9
+    Text = 'Edit1'
+  end
+  object Button3: TButton
+    Left = 456
+    Top = 408
+    Width = 113
+    Height = 25
+    Caption = #1054#1087#1090#1080#1084#1080#1079#1072#1094#1080#1103
+    TabOrder = 10
+    OnClick = Button3Click
+  end
   object OpenDialog1: TOpenDialog
     Filter = 'BVN '#1092#1072#1081#1083' Hundegger|*.bvn'
     Left = 24
-    Top = 392
+    Top = 432
   end
 end

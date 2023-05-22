@@ -18,10 +18,14 @@ type
     Button2: TButton;
     Edit2: TEdit;
     Edit3: TEdit;
+    Edit4: TEdit;
+    Edit5: TEdit;
+    Button3: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
+    procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -66,6 +70,22 @@ begin
   BVN.getBVNItemTextContent(StrtoInt(Edit1.Text),Memo3.Lines);
   Edit2.Text:=BVN.getBVNItemPartnumber(StrtoInt(Edit1.Text));
   Edit3.Text:=BVN.getBVNItemComment(StrtoInt(Edit1.Text));
+  Edit4.Text:=IntToStr(BVN.getBVNItemLong(StrtoInt(Edit1.Text)));
+  Edit5.Text:=IntToStr(BVN.getBVNItemQuantity(StrtoInt(Edit1.Text)));
+end;
+
+procedure TForm1.Button3Click(Sender: TObject);
+var opt:TDictionary<integer,integer>;
+begin
+  opt:=TDictionary<integer,integer>.Create;
+  opt.Add(9300,2);
+  opt.Add(8000,1);
+  try
+    BVN.optimize(opt);
+  except
+    on E: EnotImplemented do ShowMessage(E.Message);
+  end;
+  opt.Free;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);

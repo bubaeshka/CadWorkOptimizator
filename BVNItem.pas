@@ -8,6 +8,7 @@ type
   TBvnItem = class
   private
     TextContent:TStringList;
+    ID:Integer;
     long:integer;
     partnumber:String;
     comment:String;
@@ -15,6 +16,7 @@ type
     cut:Integer;
     width:Integer;
     heigth:Integer;
+    const LID = 6;
     const LPARTNUMBER = 20;
     const LCOMMENT = 40;
     const LQUANTITY = 4;
@@ -30,6 +32,7 @@ type
     function getComment:String;
     function getLong:integer;
     function getQuantity:integer;
+    function getID:Integer;
   end;
 
 implementation
@@ -43,9 +46,14 @@ constructor TBVNItem.Create(inputlist: TStringList);
    ///разбивка первой строки
    procedure splitfirstline(sinp:String; out in_partnumber, in_comment:String);
    begin
+     try
+       ID:=StrToInt(copy(sinp, 1, LID));
+     except
+       raise EConvertError.Create('Неверное содержание BVN-файла. Код 8');
+     end;
      //6 символов номер детали + потом пробел
      delete(sinp,1,7);
-     showmessage('='+sinp);
+     //showmessage('='+sinp);
      in_partnumber:=copy(sinp,1,LPARTNUMBER);
      delete(sinp,1,LPARTNUMBER);
      //8 символов непонятно что - пробелы
@@ -69,6 +77,11 @@ constructor TBVNItem.Create(inputlist: TStringList);
    //разбивка второй строки
    procedure splitsecondline(inps:String; out in_quantity, in_cut, in_width, in_heigth, in_long:integer);
    begin
+     try
+       if StrToInt(copy(inps, 1, LID))<>ID then raise EConvertError.Create('Неверное содержание BVN-файла. Код 10');
+     except
+       raise EConvertError.Create('Неверное содержание BVN-файла. Код 9');
+     end;
      //6 символов номер детали, потом пробел
      delete(inps,1,7);
      //13 пробелов
@@ -122,8 +135,8 @@ begin
   TextContent.Assign(inputlist);
   splitfirstline(TextContent[0],partnumber,comment);
   splitsecondline(TextContent[1],quantity,cut,width,heigth,long);
-  showmessage('='+inttostr(quantity)+'='+inttostr(cut)+'='+inttostr(width)+'='+inttostr(heigth)+'='+inttostr(long));
-  showmessage('='+partnumber+'='+comment+'=');
+  //showmessage('='+inttostr(quantity)+'='+inttostr(cut)+'='+inttostr(width)+'='+inttostr(heigth)+'='+inttostr(long));
+  //showmessage('='+partnumber+'='+comment+'=');
 end;
 //конец конструктора
 /////////////////////////////////////////////////////////////////////////////////
@@ -159,6 +172,11 @@ end;
 function TBVNItem.getQuantity: Integer;
 begin
   Result:=quantity;
+end;
+
+function TBVNItem.getID: Integer;
+begin
+  Result:=ID;
 end;
 
 end.

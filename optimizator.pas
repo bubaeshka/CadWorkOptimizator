@@ -3,7 +3,7 @@ unit optimizator;
 interface
 
 uses System.SysUtils, System.Generics.Collections, System.Classes, Vcl.Dialogs,
-  BVNItem;
+  BVNItem, Generics.Defaults;
 
 type
   TBvn = class
@@ -20,6 +20,11 @@ type
     procedure getBVNItemTextContent(numofrec:integer; tccc:TStrings);
     function getBVNItemPartnumber(numofrecc:integer):String;
     function getBVNItemComment(numofreccc:integer):String;
+    function getBVNItemLong(numofre:integer):Integer;
+    function getBVNItemQuantity(numofr:integer):Integer;
+    function getBVNCount:Integer;
+    function getBVNItemID(numo:integer):Integer;
+    procedure optimize(zagotovki:TDictionary<integer,integer>);
   end;
 
 implementation
@@ -92,14 +97,14 @@ begin
             //переключатель
             currentnum:=itemcount;
             //похоже без эксперимента не получится...
-            ShowMessage(inttostr(itemcount));
+            //ShowMessage(inttostr(itemcount));
           end;
           templist.Add(s); //добавляем строку в темплист
           //дополнительная проверка, чтобы добавить последний объект, как от неё избавится?
           if EOF(f) then begin
             Item:=TBVNItem.Create(templist);
             Items.Add(Item);
-            ShowMessage(inttostr(itemcount));
+            //ShowMessage(inttostr(itemcount));
           end;
         end else raise EConvertError.Create('Неверное содержание BVN-файла. Код 1');
       end;
@@ -131,6 +136,48 @@ begin
 end;
 //конец деструктора
 
+//оптимизатор
+procedure TBVN.optimize(zagotovki: TDictionary<integer,integer>);
+var item:TDictionary<integer,integer>;
+    zz,xx:TList<TPair<integer,integer>>;
+    el:TPair<integer,integer>;
+    Comparison:TComparison<TPair<integer,integer>>; 
+begin
+  item:=TDictionary<integer,integer>.Create;
+  //очень подозрительная хрень
+  Comparison:=
+    function(const Left, Rigth: TPair<integer,integer>): integer
+    begin 
+      Result:=Left.Value-Rigth.Value; 
+    end;
+  //конец подозрительной хрени
+  xx:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison));
+  //временно используем TDictionary, поэтому копируем в нашу сомнительную структуру
+  zz:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison));
+  for var Enum in zagotovki do zz.Add(Enum);  
+  //поехали дальше
+
+  //
+  try
+    for var Enum in Items do begin
+      if Enum.getQuantity>1 then
+        raise EnotImplemented.Create('Количество изделий больше 1 пока не поддерживается');
+      el.Key:=Enum.getID;
+      el.Value:=Enum.getLong;
+      xx.Add(el);
+    end;
+
+    
+    showmessage(inttostr(xx[0].Key));
+  finally
+    zz.Free;
+    xx.Free;
+    item.Free;
+  end;
+end;
+
+//конец оптимизатора
+
 
 //геттеры и сеттеры
 function TBVN.getFirstLine: string;
@@ -158,5 +205,24 @@ begin
   Result:=Items[numofreccc].getComment;
 end;
 
+function TBVN.getBVNItemLong(numofre: Integer): Integer;
+begin
+  Result:=Items[numofre].getLong;
+end;
+
+function TBVN.getBVNItemQuantity(numofr: Integer): Integer;
+begin
+  Result:=Items[numofr].getQuantity;
+end;
+
+function TBVN.getBVNCount: Integer;
+begin
+  Result:=Items.Count;
+end;
+
+function TBVN.getBVNItemID(numo: Integer): Integer;
+begin
+  Result:=Items[numo].getID;
+end;
 
 end.
