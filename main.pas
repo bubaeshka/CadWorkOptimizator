@@ -78,12 +78,17 @@ procedure TForm1.Button3Click(Sender: TObject);
 var opt:TDictionary<integer,integer>;
 begin
   opt:=TDictionary<integer,integer>.Create;
-  opt.Add(9300,2);
-  opt.Add(8000,1);
+  opt.Add(63000,2);
+  opt.Add(80000,1);
+  opt.Add(93000,3);
+  opt.Add(72000,1);
+  opt.Add(54000,1);
+  opt.Add(123000,2);
   try
-    BVN.optimize(opt);
+    BVN.optimize(opt,50);
   except
     on E: EnotImplemented do ShowMessage(E.Message);
+    on E: EArgumentException do ShowMessage(E.Message);
   end;
   opt.Free;
 end;

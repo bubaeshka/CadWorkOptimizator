@@ -24,7 +24,7 @@ type
     function getBVNItemQuantity(numofr:integer):Integer;
     function getBVNCount:Integer;
     function getBVNItemID(numo:integer):Integer;
-    procedure optimize(zagotovki:TDictionary<integer,integer>);
+    procedure optimize(zagotovki:TDictionary<integer,integer>; cut:integer);
   end;
 
 implementation
@@ -127,6 +127,8 @@ end;
 //конец конструктора
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 //Деструктор - уничтожение объекта BVN
 destructor TBVN.Destroy;
 begin
@@ -136,27 +138,40 @@ begin
 end;
 //конец деструктора
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 //оптимизатор
-procedure TBVN.optimize(zagotovki: TDictionary<integer,integer>);
+procedure TBVN.optimize(zagotovki: TDictionary<integer,integer>; cut:integer);
 var item:TDictionary<integer,integer>;
     zz,xx:TList<TPair<integer,integer>>;
     el:TPair<integer,integer>;
-    Comparison:TComparison<TPair<integer,integer>>; 
+    ex:TPair<integer,String>;
+    Comparison, Comparison1:TComparison<TPair<integer,integer>>;
+    temp:String;
+    outt:TList<TPair<Integer, String>>;
+    i,k,ostatok,iterations,ostatok2:integer;
 begin
   item:=TDictionary<integer,integer>.Create;
-  //очень подозрительная хрень
+  //функция сортировки по убыванию длинны
   Comparison:=
     function(const Left, Rigth: TPair<integer,integer>): integer
-    begin 
-      Result:=Left.Value-Rigth.Value; 
+    begin
+      Result:=Rigth.Value-Left.Value;
     end;
-  //конец подозрительной хрени
+  //функция сортировки по убыванию длинны заготовки
+  Comparison1:=
+    function(const Left, Rigth: TPair<integer,integer>): integer
+    begin
+      Result:=Rigth.Key-Left.Key;
+    end;
+  //конец функции
   xx:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison));
+  zz:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison1));
+  outt:=TList<TPair<integer, string>>.Create;
   //временно используем TDictionary, поэтому копируем в нашу сомнительную структуру
-  zz:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison));
-  for var Enum in zagotovki do zz.Add(Enum);  
+  for var Enum in zagotovki do zz.Add(Enum);
   //поехали дальше
-
+  zz.Sort; //сортируем заготовку по убыванию длинны
   //
   try
     for var Enum in Items do begin
@@ -166,10 +181,38 @@ begin
       el.Value:=Enum.getLong;
       xx.Add(el);
     end;
-
-    
+    xx.Sort; //сортируем изделия по убыванию длинны
+    if xx.Count<1 then raise EArgumentException.Create('Нечего раскраивать');
+    if zz.Count<1 then raise EArgumentException.Create('Нечем раскраивать');
+    //цикл раскроя, пока не кончились изделия
+    i:=0; //счётчик
+    k:=0; //счётчик заготовок
+    while xx.Count>0 do begin
+      //берём первый элемент и размещаем его в первой по длинне заготовке
+      if ((xx[1].Value+cut)<zz[k].Key) and ((zz[k].Value>0) or (zz[k].Value=-999)) then begin
+        //формируем новый элемент, в Key ID изделия
+        ex.Key:=xx[1].Key;
+        //в значении строка с номером заготовки
+        ex.Value:=' #'+IntToStr(k)+' длин:'+inttostr(xx[1].Value)+' отп:'+inttostr(cut);
+        ShowMessage(ex.Value);
+        ostatok:=zz[k].Key-xx[1].Value-cut;
+        ShowMessage(inttostr(ostatok));
+        outt.Add(ex);
+        xx.Delete(1);
+        ///////////////
+        iterations:=0;
+        ostatok2:=0;
+        repeat
+          iterations:=iterations+1;
+          ostatok2:=ostatok2+xx[xx.Count-iterations].Value+cut;
+        until ostatok2>0;
+        ///////////////
+      end else raise EArgumentException.Create('Изделие не влезает в самую большую заготовку');
+      i:=i+1;
+    end;
     showmessage(inttostr(xx[0].Key));
   finally
+    outt.Free;
     zz.Free;
     xx.Free;
     item.Free;
@@ -177,7 +220,8 @@ begin
 end;
 
 //конец оптимизатора
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //геттеры и сеттеры
 function TBVN.getFirstLine: string;
