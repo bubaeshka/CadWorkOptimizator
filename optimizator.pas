@@ -149,7 +149,7 @@ var item:TDictionary<integer,integer>;
     Comparison, Comparison1:TComparison<TPair<integer,integer>>;
     temp:String;
     outt:TList<TPair<Integer, String>>;
-    i,k,ostatok,iterations,ostatok2:integer;
+    i,k,j,ostatok,iterations,ostatok2,minkey,minostatok:integer;
 begin
   item:=TDictionary<integer,integer>.Create;
   //функция сортировки по убыванию длинны
@@ -188,29 +188,74 @@ begin
     i:=0; //счётчик
     k:=0; //счётчик заготовок
     while xx.Count>0 do begin
-      //берём первый элемент и размещаем его в первой по длинне заготовке
-      if ((xx[1].Value+cut)<zz[k].Key) and ((zz[k].Value>0) or (zz[k].Value=-999)) then begin
-        //формируем новый элемент, в Key ID изделия
-        ex.Key:=xx[1].Key;
-        //в значении строка с номером заготовки
-        ex.Value:=' #'+IntToStr(k)+' длин:'+inttostr(xx[1].Value)+' отп:'+inttostr(cut);
-        ShowMessage(ex.Value);
-        ostatok:=zz[k].Key-xx[1].Value-cut;
-        ShowMessage(inttostr(ostatok));
-        outt.Add(ex);
-        xx.Delete(1);
-        ///////////////
-        iterations:=0;
-        ostatok2:=0;
-        repeat
-          iterations:=iterations+1;
-          ostatok2:=ostatok2+xx[xx.Count-iterations].Value+cut;
-        until ostatok2>0;
-        ///////////////
-      end else raise EArgumentException.Create('Изделие не влезает в самую большую заготовку');
+      //попрыгай по заготовкам
+      for k:=0 to zz.Count-1 do begin
+
+        //берём первый элемент и размещаем его в первой по длинне заготовке
+        if ((xx[0].Value+cut)<zz[k].Key) and ((zz[k].Value>0) or (zz[k].Value=-999)) then begin
+          //формируем новый элемент, в Key ID изделия
+          ex.Key:=xx[0].Key;
+          //в значении строка с номером заготовки
+          ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+inttostr(xx[0].Value)+' отп:'+inttostr(cut)
+          +' остат:'+IntToStr(zz[k].Key-xx[0].Value-cut);
+          ShowMessage(ex.Value);
+          ostatok:=zz[k].Key-xx[0].Value-cut;
+          ShowMessage(inttostr(ostatok));
+          outt.Add(ex);
+          xx.Delete(0);
+          if xx.Count<=0 then break;
+
+          ///////////////
+          iterations:=0;
+          ostatok2:=ostatok;
+            //узнаем сколько влезет мелких элементов в остаток
+          repeat
+            iterations:=iterations+1;
+            ostatok2:=ostatok2-xx[xx.Count-iterations].Value-cut;
+          until ostatok2<0;
+            //добавляем в раскрой все мелкие элементы, котторые влезли, кроме последнего
+          for j := 1 to iterations-2 do begin
+            ex.Key:=xx[xx.Count-j].Key;
+            ostatok:=ostatok-xx[xx.Count-j].Value-cut;
+            ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(xx[xx.Count-j].Value)+
+            ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok);
+            outt.Add(ex);
+            xx.Delete(xx.Count-j);
+            if xx.Count<=0 then break;
+          end;
+          if xx.Count<=0 then break;
+            //ищем оптимальное размещение последнего элемента
+          minostatok:=ostatok-xx[xx.Count-1].Value-cut;
+          minkey:=0;
+          for j := 1 to xx.Count-1 do begin
+            ostatok2:=ostatok-xx[xx.Count-j].Value-cut;
+            if (ostatok2<=minostatok) and (ostatok2>0) then begin
+              minostatok:=(ostatok-xx[xx.Count-j].Value-cut);
+              minkey:=xx.Count-j;
+            end;
+            if ostatok2<0 then break;
+          end;
+          if minkey<>0 then begin
+            ex.Key:=xx[minkey].Key;
+            ostatok:=ostatok-xx[minkey].Value-cut;
+            ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(xx[minkey].Value)+
+            ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok);;
+            outt.Add(ex);
+            xx.Delete(minkey);
+            if xx.Count<=0 then break;
+          end;
+          ///////////////
+        end else raise EArgumentException.Create('Изделие не влезает в самую большую заготовку');
+      end;
+
+      if zz[k].Value<>-999 then begin
+        el.Key:=zz[k].Key;
+        el.Value:=zz[k].Value-1;
+        zz.Delete(k);
+        if el.Value<>0 then zz.Insert(k,el);
+      end;
       i:=i+1;
     end;
-    showmessage(inttostr(xx[0].Key));
   finally
     outt.Free;
     zz.Free;
