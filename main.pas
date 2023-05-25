@@ -86,7 +86,7 @@ begin
   opt.Add(54000,1);
   opt.Add(123000,2);
   try
-    BVN.optimize(opt,50, Memo4.Lines);
+    BVN.optimize(opt,50, true, Memo4.Lines);
   except
     on E: EnotImplemented do ShowMessage(E.Message);
     on E: EArgumentException do ShowMessage(E.Message);

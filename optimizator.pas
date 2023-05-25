@@ -24,7 +24,7 @@ type
     function getBVNItemQuantity(numofr:integer):Integer;
     function getBVNCount:Integer;
     function getBVNItemID(numo:integer):Integer;
-    procedure optimize(zagotovki:TDictionary<integer,integer>; cut:integer;spravka:TStrings);
+    procedure optimize(zagotovki:TDictionary<integer,integer>; cut:integer; modf:boolean; spravka:TStrings);
   end;
 
 implementation
@@ -142,7 +142,7 @@ end;
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //оптимизатор
-procedure TBVN.optimize(zagotovki: TDictionary<integer,integer>; cut:integer; spravka:TStrings);
+procedure TBVN.optimize(zagotovki: TDictionary<integer,integer>; cut:integer; modf:boolean; spravka:TStrings);
 var zz,xx,tt:TList<TPair<integer,integer>>;
     el:TPair<integer,integer>;
     ex:TPair<integer,String>;
@@ -209,7 +209,7 @@ begin
           ex.Key:=tt[0].Key;
           //в значении строка с номером заготовки
           ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+inttostr(tt[0].Value)+' отп:'+inttostr(cut)
-          +' остат:'+IntToStr(zz[k].Key-tt[0].Value-cut);
+          +' остат:'+IntToStr(zz[k].Key-tt[0].Value-cut)+' F ';
           //вычисл€ем остаток и добавл€ем 1-й, самый длинный элемент во временный выходной список
           ostatok:=zz[k].Key-tt[0].Value-cut;
           outt.Add(ex);
@@ -220,23 +220,25 @@ begin
           ///////////////////////////////////////////////////////////////////////////////////
           //некотора€ модификаци€ жадного алгоритма, мы накидываем деталей в текущий раскрой
           //сзади списка столько, сколько их влезет -1, последн€€ деталь будет с поиском минимального остатка
-          iterations:=0;
-          ostatok2:=ostatok;
-          //узнаем сколько влезет мелких элементов в остаток
-          for j := tt.Count-1 downto 0 do begin
-            iterations:=iterations+1;
-            ostatok2:=ostatok2-tt[tt.Count-iterations].Value-cut;
-            if ostatok2<0 then break;
-          end;  
-          //добавл€ем в раскрой все мелкие элементы, котторые влезли, кроме последнего
-          for j := 1 to iterations-2 do begin
-            ex.Key:=tt[tt.Count-j].Key;
-            ostatok:=ostatok-tt[tt.Count-j].Value-cut;
-            ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(tt[tt.Count-j].Value)+
-            ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok);
-            outt.Add(ex);
-            tt.Delete(tt.Count-j);
-            if tt.Count<=0 then break;
+          if modf then begin
+            iterations:=0;
+            ostatok2:=ostatok;
+            //узнаем сколько влезет мелких элементов в остаток
+            for j := tt.Count-1 downto 0 do begin
+              iterations:=iterations+1;
+              ostatok2:=ostatok2-tt[tt.Count-iterations].Value-cut;
+              if ostatok2<0 then break;
+            end;  
+            //добавл€ем в раскрой все мелкие элементы, котторые влезли, кроме последнего
+            for j := 1 to iterations-2 do begin
+              ex.Key:=tt[tt.Count-j].Key;
+              ostatok:=ostatok-tt[tt.Count-j].Value-cut;
+              ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(tt[tt.Count-j].Value)+
+              ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok)+' M ';
+              outt.Add(ex);
+              tt.Delete(tt.Count-j);
+              if tt.Count<=0 then break;
+            end;
           end;
           //ищем оптимальное размещение последнего элемента, если он не единственный
           if tt.Count>0 then minostatok:=ostatok-tt[tt.Count-1].Value-cut;
@@ -255,7 +257,7 @@ begin
             ex.Key:=tt[minkey].Key;
             ostatok:=ostatok-tt[minkey].Value-cut;
             ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(tt[minkey].Value)+
-            ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok);;
+            ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok)+' O ';
             outt.Add(ex);
             tt.Delete(minkey);
             if tt.Count<=0 then break;
@@ -280,7 +282,7 @@ begin
       //так как мы нашли оптимально-раскраиваемую заготовку
       for k := firstmin to lastmin do begin
         //ну ка проверим
-        if k=lastmin then begin 
+        if k=lastmin then begin
           ex:=outt[k];
           ex.Value:=ex.Value+' послостаток:'+inttostr(zagminostatok)+' %: '
           +floattostrf(((zagminostatok/zz[keyzag].Key)*100),FFfixed,3,2);
