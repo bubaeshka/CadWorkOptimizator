@@ -24,7 +24,7 @@ type
     function getBVNItemQuantity(numofr:integer):Integer;
     function getBVNCount:Integer;
     function getBVNItemID(numo:integer):Integer;
-    procedure optimize(zagotovki:TDictionary<integer,integer>; cut:integer);
+    procedure optimize(zagotovki:TDictionary<integer,integer>; cut:integer;spravka:TStrings);
   end;
 
 implementation
@@ -43,9 +43,10 @@ implementation
 constructor TBvn.Create(filename: TFileName; IMaxFileRecords:integer);
 var f:TextFile;
     s:String;
-    i, priznak, currentnum:integer;
+    i, currentnum:integer;
     templist:TStringList;
     Item:TBVNItem;
+    //priznak:integer;
 begin
   inherited Create;
   if IMaxFileRecords<1 then
@@ -57,11 +58,11 @@ begin
     raise EInOutError.Create('Ошибка открытия файла данных');
   end;
   i:=0;
-  priznak:=0;
+  // priznak:=0;
   itemcount:=0;
   currentnum:=0;
+  templist:=TStringList.Create;  //создаём временный стринглист
   try
-    templist:=TStringList.Create;  //создаём временный стринглист
     Items:=TObjectList<TBVNItem>.Create(True);
     //цикл чтения строк файла
     while not EOF(F) do begin
@@ -73,7 +74,7 @@ begin
       //отделение служебной BVNINFO информации
       if pos('BVINFO',s)<>0 then begin
         if not Assigned(BVInfo) then BVInfo:=TStringList.Create;
-        inc(priznak);
+       // inc(priznak);
         BVInfo.Add(s);
       end;
       //это не первая строка и не BVNINFO, а значит код программы, начинающийся с её номера
@@ -141,18 +142,18 @@ end;
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //оптимизатор
-procedure TBVN.optimize(zagotovki: TDictionary<integer,integer>; cut:integer);
-var item:TDictionary<integer,integer>;
-    zz,xx:TList<TPair<integer,integer>>;
+procedure TBVN.optimize(zagotovki: TDictionary<integer,integer>; cut:integer; spravka:TStrings);
+var zz,xx,tt:TList<TPair<integer,integer>>;
     el:TPair<integer,integer>;
     ex:TPair<integer,String>;
     Comparison, Comparison1:TComparison<TPair<integer,integer>>;
     temp:String;
-    outt:TList<TPair<Integer, String>>;
-    i,k,j,ostatok,iterations,ostatok2,minkey,minostatok:integer;
+    outt,raskroi:TList<TPair<Integer, String>>;
+    i,k,j,ostatok,iterations,ostatok2,minkey,minostatok,zagminostatok:integer;
+    firstmin,lastmin,firstitem,lastitem,keyzag:integer;
+    uspeh:boolean;
 begin
-  item:=TDictionary<integer,integer>.Create;
-  //функция сортировки по убыванию длинны
+  //функция сортировки по убыванию длинны изделия
   Comparison:=
     function(const Left, Rigth: TPair<integer,integer>): integer
     begin
@@ -164,16 +165,20 @@ begin
     begin
       Result:=Rigth.Key-Left.Key;
     end;
-  //конец функции
-  xx:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison));
-  zz:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison1));
-  outt:=TList<TPair<integer, string>>.Create;
-  //временно используем TDictionary, поэтому копируем в нашу сомнительную структуру
+  //конец функций сортировки
+  xx:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison));  //изделия
+  zz:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison1)); //заготовки
+  outt:=TList<TPair<integer, string>>.Create; //временный выходной список
+  tt:=TList<TPair<integer, integer>>.Create; //временный список, для оптимизации каждой заготовки
+  raskroi:=TList<TPair<integer, string>>.Create; //окончательный выходной список
+  //временно используем TDictionary, поэтому копируем входной словарь из параметра в список заготовок
+  //а наверное, не временно, так как создание и уничтожение словаря за телом процедуры, и управление памятью там-же
   for var Enum in zagotovki do zz.Add(Enum);
   //поехали дальше
   zz.Sort; //сортируем заготовку по убыванию длинны
-  //
+  //блок освобождения ресурсов, при возникновении ошибки
   try
+    //блок копирования изделий из поля-класса во входной список
     for var Enum in Items do begin
       if Enum.getQuantity>1 then
         raise EnotImplemented.Create('Количество изделий больше 1 пока не поддерживается');
@@ -182,85 +187,134 @@ begin
       xx.Add(el);
     end;
     xx.Sort; //сортируем изделия по убыванию длинны
+    //проверяем на наличии исходных данных
     if xx.Count<1 then raise EArgumentException.Create('Нечего раскраивать');
     if zz.Count<1 then raise EArgumentException.Create('Нечем раскраивать');
     //цикл раскроя, пока не кончились изделия
-    i:=0; //счётчик
-    k:=0; //счётчик заготовок
+    i:=0; //счётчик раскроя
+    minostatok:=0; //инициализация для компилятора
+    //пока входной список-изделий не очиститься полностью
     while xx.Count>0 do begin
+      uspeh:=false;   //наличие хотя-бы одного раскроя
+      if zz.Count<=0 then raise EArgumentException.Create('Заготовки кончились, а изделия нет');
+      zagminostatok:=zz[0].Key; //минимальный остаток - длинна максимальной заготовки
       //попрыгай по заготовкам
       for k:=0 to zz.Count-1 do begin
-
+        //очищаем временный входной список, перед сменой заготовки
+        tt.Clear;
+        for var Enum in xx do tt.Add(Enum); //копируем с основного списка во временный для раскроя k-ой заготовки
         //берём первый элемент и размещаем его в первой по длинне заготовке
-        if ((xx[0].Value+cut)<zz[k].Key) and ((zz[k].Value>0) or (zz[k].Value=-999)) then begin
+        if ((tt[0].Value+cut)<zz[k].Key) and ((zz[k].Value>0) or (zz[k].Value=-999)) then begin
           //формируем новый элемент, в Key ID изделия
-          ex.Key:=xx[0].Key;
+          ex.Key:=tt[0].Key;
           //в значении строка с номером заготовки
-          ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+inttostr(xx[0].Value)+' отп:'+inttostr(cut)
-          +' остат:'+IntToStr(zz[k].Key-xx[0].Value-cut);
-          ShowMessage(ex.Value);
-          ostatok:=zz[k].Key-xx[0].Value-cut;
-          ShowMessage(inttostr(ostatok));
+          ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+inttostr(tt[0].Value)+' отп:'+inttostr(cut)
+          +' остат:'+IntToStr(zz[k].Key-tt[0].Value-cut);
+          //вычисляем остаток и добавляем 1-й, самый длинный элемент во временный выходной список
+          ostatok:=zz[k].Key-tt[0].Value-cut;
           outt.Add(ex);
-          xx.Delete(0);
-          if xx.Count<=0 then break;
-
-          ///////////////
+          //Это наш первый элемент текущего раскроя во временном выходном списке
+          firstitem:=outt.Count-1;
+          tt.Delete(0);
+          uspeh:=true; //как минимум, одна деталь раскроилась
+          ///////////////////////////////////////////////////////////////////////////////////
+          //некоторая модификация жадного алгоритма, мы накидываем деталей в текущий раскрой
+          //сзади списка столько, сколько их влезет -1, последняя деталь будет с поиском минимального остатка
           iterations:=0;
           ostatok2:=ostatok;
-            //узнаем сколько влезет мелких элементов в остаток
-          repeat
+          //узнаем сколько влезет мелких элементов в остаток
+          for j := tt.Count-1 downto 0 do begin
             iterations:=iterations+1;
-            ostatok2:=ostatok2-xx[xx.Count-iterations].Value-cut;
-          until ostatok2<0;
-            //добавляем в раскрой все мелкие элементы, котторые влезли, кроме последнего
+            ostatok2:=ostatok2-tt[tt.Count-iterations].Value-cut;
+            if ostatok2<0 then break;
+          end;  
+          //добавляем в раскрой все мелкие элементы, котторые влезли, кроме последнего
           for j := 1 to iterations-2 do begin
-            ex.Key:=xx[xx.Count-j].Key;
-            ostatok:=ostatok-xx[xx.Count-j].Value-cut;
-            ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(xx[xx.Count-j].Value)+
+            ex.Key:=tt[tt.Count-j].Key;
+            ostatok:=ostatok-tt[tt.Count-j].Value-cut;
+            ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(tt[tt.Count-j].Value)+
             ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok);
             outt.Add(ex);
-            xx.Delete(xx.Count-j);
-            if xx.Count<=0 then break;
+            tt.Delete(tt.Count-j);
+            if tt.Count<=0 then break;
           end;
-          if xx.Count<=0 then break;
-            //ищем оптимальное размещение последнего элемента
-          minostatok:=ostatok-xx[xx.Count-1].Value-cut;
-          minkey:=0;
-          for j := 1 to xx.Count-1 do begin
-            ostatok2:=ostatok-xx[xx.Count-j].Value-cut;
+          //ищем оптимальное размещение последнего элемента, если он не единственный
+          if tt.Count>0 then minostatok:=ostatok-tt[tt.Count-1].Value-cut;
+          minkey:=0; //если найден такой элемент, то минкей будет не равен 0
+          for j := 1 to tt.Count-1 do begin
+            ostatok2:=ostatok-tt[tt.Count-j].Value-cut;
             if (ostatok2<=minostatok) and (ostatok2>0) then begin
-              minostatok:=(ostatok-xx[xx.Count-j].Value-cut);
-              minkey:=xx.Count-j;
+              minostatok:=(ostatok-tt[tt.Count-j].Value-cut);
+              minkey:=tt.Count-j;
             end;
+            //так как список отсортирован по возрастанию, при появлении минуса, дальше идти не нужно
             if ostatok2<0 then break;
           end;
+          //оптимальное размещение найдено
           if minkey<>0 then begin
-            ex.Key:=xx[minkey].Key;
-            ostatok:=ostatok-xx[minkey].Value-cut;
-            ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(xx[minkey].Value)+
+            ex.Key:=tt[minkey].Key;
+            ostatok:=ostatok-tt[minkey].Value-cut;
+            ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(tt[minkey].Value)+
             ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok);;
             outt.Add(ex);
-            xx.Delete(minkey);
-            if xx.Count<=0 then break;
+            tt.Delete(minkey);
+            if tt.Count<=0 then break;
           end;
           ///////////////
-        end else raise EArgumentException.Create('Изделие не влезает в самую большую заготовку');
+        end else break; //изделие max не входит в заготовку k, дальше заготовки меньше - стоп
+        lastitem:=outt.Count-1;
+        //поиск заготовки-раскроя с минимальным отходом, при выходе по break она уже найдена
+        if ostatok<=zagminostatok then begin
+           zagminostatok:=ostatok;
+           //начальная и конечная позиции оптимального раскроя в выходном списке
+           firstmin:=firstitem;
+           lastmin:=lastitem;
+           //позиция оптимально раскроенной заготовки
+           keyzag:=k;
+        end;
       end;
-
-      if zz[k].Value<>-999 then begin
-        el.Key:=zz[k].Key;
-        el.Value:=zz[k].Value-1;
-        zz.Delete(k);
-        if el.Value<>0 then zz.Insert(k,el);
+      //конец цикла по заготовкам
+      //ни одной детали не раскроилось в цикле по заготовкам
+      if not uspeh then raise EArgumentException.Create('Изделие не влезает в самую большую заготовку');
+      //привидения основных, входных и выходных списков к правильному виду, 
+      //так как мы нашли оптимально-раскраиваемую заготовку
+      for k := firstmin to lastmin do begin
+        //ну ка проверим
+        if k=lastmin then begin 
+          ex:=outt[k];
+          ex.Value:=ex.Value+' послостаток:'+inttostr(zagminostatok)+' %: '
+          +floattostrf(((zagminostatok/zz[keyzag].Key)*100),FFfixed,3,2);
+          outt[k]:=ex;
+        end; 
+        //ну ка
+        raskroi.Add(outt[k]); //добавляем в выходной раскрой, оптимальный
+        //удаляем из цикла входных элементов, те что в раскрое
+        for j:=0 to xx.Count-1 do
+           if xx[j].Key=outt[k].Key
+              then begin
+                //как только нашли элемент - прервали цикл
+                xx.Delete(j);
+                break;
+              end;
+      end;
+      outt.Clear;
+      //убираем раскраиваемую заготовку из списка заготовок, если не ключ бесконечности
+      if zz[keyzag].Value<>-999 then begin
+        el:=zz[keyzag];
+        el.Value:=zz[keyzag].Value-1;
+        zz[keyzag]:=el;
+        if el.Value=0 then zz.Delete(keyzag);
       end;
       i:=i+1;
     end;
+    //интерфейсная часть, для отладки
+    for var Enum in raskroi do spravka.Add(Enum.Value);
   finally
     outt.Free;
     zz.Free;
     xx.Free;
-    item.Free;
+    tt.Free;
+    raskroi.Free;
   end;
 end;
 

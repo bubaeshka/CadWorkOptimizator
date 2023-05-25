@@ -21,6 +21,7 @@ type
     Edit4: TEdit;
     Edit5: TEdit;
     Button3: TButton;
+    Memo4: TMemo;
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -78,14 +79,14 @@ procedure TForm1.Button3Click(Sender: TObject);
 var opt:TDictionary<integer,integer>;
 begin
   opt:=TDictionary<integer,integer>.Create;
-  opt.Add(63000,2);
-  opt.Add(80000,1);
-  opt.Add(93000,3);
+  opt.Add(63000,-999);
+  opt.Add(80000,-999);
+  opt.Add(93000,-999);
   opt.Add(72000,1);
   opt.Add(54000,1);
   opt.Add(123000,2);
   try
-    BVN.optimize(opt,50);
+    BVN.optimize(opt,50, Memo4.Lines);
   except
     on E: EnotImplemented do ShowMessage(E.Message);
     on E: EArgumentException do ShowMessage(E.Message);
