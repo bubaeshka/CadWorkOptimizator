@@ -18,10 +18,14 @@ type
     function getFirstLine:String;
     procedure getBVInfo(sll:TStrings);
     procedure getBVNItemTextContent(numofrec:integer; tccc:TStrings);
+    procedure setBVNItemID(nu:Integer; nID:integer);
+    procedure resort;
     function getBVNItemPartnumber(numofrecc:integer):String;
     function getBVNItemComment(numofreccc:integer):String;
+    procedure setBVNItemComment(nfrec:integer; scomment:string);
     function getBVNItemLong(numofre:integer):Integer;
     function getBVNItemQuantity(numofr:integer):Integer;
+    procedure savetofile(filenames:TFileName);
     function getBVNCount:Integer;
     function getBVNItemID(numo:integer):Integer;
     procedure optimize(zagotovki:TDictionary<integer,integer>; cut:integer; modf:boolean; spravka:TStrings);
@@ -150,7 +154,7 @@ var zz,xx,tt:TList<TPair<integer,integer>>;
     temp:String;
     outt,raskroi:TList<TPair<Integer, String>>;
     i,k,j,ostatok,iterations,ostatok2,minkey,minostatok,zagminostatok:integer;
-    firstmin,lastmin,firstitem,lastitem,keyzag:integer;
+    firstmin,lastmin,firstitem,lastitem,keyzag,m,n:integer;
     uspeh:boolean;
 begin
   //функция сортировки по убыванию длинны изделия
@@ -278,7 +282,7 @@ begin
       //конец цикла по заготовкам
       //ни одной детали не раскроилось в цикле по заготовкам
       if not uspeh then raise EArgumentException.Create('Изделие не влезает в самую большую заготовку');
-      //привидения основных, входных и выходных списков к правильному виду, 
+      //привидения основных, входных и выходных списков к правильному виду,
       //так как мы нашли оптимально-раскраиваемую заготовку
       for k := firstmin to lastmin do begin
         //ну ка проверим
@@ -287,8 +291,14 @@ begin
           ex.Value:=ex.Value+' послостаток:'+inttostr(zagminostatok)+' %: '
           +floattostrf(((zagminostatok/zz[keyzag].Key)*100),FFfixed,3,2);
           outt[k]:=ex;
-        end; 
+        end;
         //ну ка
+        //тест
+          ex:=outt[k];
+          ex.Value:=inttostr(i+1)+'-'+inttostr(k-firstmin+1)+' '+inttostr(zz[keyzag].Key)+' |'
+          +inttostr(ex.Key)+'| '+ex.Value;
+          outt[k]:=ex;
+        //тест
         raskroi.Add(outt[k]); //добавляем в выходной раскрой, оптимальный
         //удаляем из цикла входных элементов, те что в раскрое
         for j:=0 to xx.Count-1 do
@@ -311,6 +321,12 @@ begin
     end;
     //интерфейсная часть, для отладки
     for var Enum in raskroi do spravka.Add(Enum.Value);
+    //попытка сортировки списка
+    for m:=0 to raskroi.Count-1 do
+      for n:=0 to Items.Count-1 do if raskroi[m].Key=items[n].getID then begin
+        Items[n].setComment(raskroi[m].Value);
+        Items.Move(n,m);
+      end;
   finally
     outt.Free;
     zz.Free;
@@ -323,6 +339,31 @@ end;
 //конец оптимизатора
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
+
+//сохранение в файл
+procedure TBVN.savetofile(filenames: TFileName);
+var f1:TextFile;
+    xxx:TStringList;
+    i:integer;
+begin
+  assign(f1,filenames);
+  rewrite(f1);
+  xxx:=TStringList.Create;
+  try
+    writeln(f1,getfirstline);
+    getBVInfo(xxx);
+    for var Enum in xxx do writeln(f1,Enum);
+    if Items.Count>1 then begin
+      for i:=0 to Items.Count-1 do begin
+        getBVNItemTextContent(i,xxx);
+        for var Enum in xxx do writeln(f1,Enum);
+      end;
+    end;
+  finally
+    closefile(f1);
+    xxx.Free;
+  end;
+end;
 
 //геттеры и сеттеры
 function TBVN.getFirstLine: string;
@@ -368,6 +409,30 @@ end;
 function TBVN.getBVNItemID(numo: Integer): Integer;
 begin
   Result:=Items[numo].getID;
+end;
+
+procedure TBVN.setBVNItemID(nu: Integer; nID: Integer);
+var i:integer;
+begin
+  for i:=0 to Items.Count-1 do if Items[i].getID=nu then begin
+   Items[i].setID(nID);
+   break;
+  end;
+end;
+
+procedure TBVN.setBVNItemComment(nfrec: Integer; scomment: string);
+begin
+  Items[nfrec].setComment(scomment);
+end;
+
+procedure TBVN.resort;
+begin
+  Items.Sort(TComparer<TBVNItem>.Construct(
+  function (const L, R:TBVNItem):integer
+  begin
+    Result:=L.getID-R.getID;
+  end
+  ));
 end;
 
 end.

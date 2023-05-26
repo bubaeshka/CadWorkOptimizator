@@ -33,6 +33,8 @@ type
     function getLong:integer;
     function getQuantity:integer;
     function getID:Integer;
+    procedure setID(newID:integer);
+    procedure setComment(scom:string);
   end;
 
 implementation
@@ -178,5 +180,34 @@ function TBVNItem.getID: Integer;
 begin
   Result:=ID;
 end;
+
+procedure TBVNItem.setID(newID: Integer);
+var sr:string;
+    i:integer;
+begin
+  if assigned(TextContent) then begin
+    for i:=0 to TextContent.Count-1 do begin
+      sr:=TextContent[i];
+      delete(sr,1,6);
+      sr:=Format('%.6d',[newID])+sr;
+      TextContent[i]:=sr;
+    end;
+    ID:=newID;
+  end;
+end;
+
+
+procedure TBVNItem.setComment(scom: string);
+var stemp:string;
+begin
+  if assigned (TextContent) then begin
+    stemp:=copy(TextContent[0],1,69);
+    delete(scom,41,length(scom));
+    stemp:=stemp+format('%40-s',[scom]);
+    TextContent[0]:=stemp;
+    Comment:=scom;
+  end;
+end;
+
 
 end.

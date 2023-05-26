@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, System.Generics.Collections, System.IniFiles,
-  optimizator;
+  optimizator, Vcl.Grids, Vcl.ValEdit;
 
 type
   TForm1 = class(TForm)
@@ -22,11 +22,23 @@ type
     Edit5: TEdit;
     Button3: TButton;
     Memo4: TMemo;
+    Button4: TButton;
+    Edit6: TEdit;
+    Button5: TButton;
+    SaveDialog1: TSaveDialog;
+    Button6: TButton;
+    CheckBox1: TCheckBox;
+    ValueListEditor1: TValueListEditor;
+    Label1: TLabel;
+    Label2: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button6Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -77,21 +89,40 @@ end;
 
 procedure TForm1.Button3Click(Sender: TObject);
 var opt:TDictionary<integer,integer>;
+    i:integer;
 begin
   opt:=TDictionary<integer,integer>.Create;
-  opt.Add(63000,-999);
+  {opt.Add(63000,-999);
   opt.Add(80000,-999);
   opt.Add(93000,-999);
   opt.Add(72000,1);
   opt.Add(54000,1);
-  opt.Add(123000,2);
+  opt.Add(123000,2);}
+  for i:=1 to ValueListEditor1.RowCount-1 do
+    opt.Add(StrToInt(ValueListEditor1.Cells[0,i])*10,StrToInt(ValueListEditor1.Cells[1,i]));
+
   try
-    BVN.optimize(opt,50, true, Memo4.Lines);
+    BVN.optimize(opt,50, CheckBox1.Checked, Memo4.Lines);
   except
     on E: EnotImplemented do ShowMessage(E.Message);
     on E: EArgumentException do ShowMessage(E.Message);
   end;
   opt.Free;
+end;
+
+procedure TForm1.Button4Click(Sender: TObject);
+begin
+  BVN.setBVNItemID(StrToInt(edit1.Text),StrToInt(edit6.Text))
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+begin
+  BVN.setBVNItemComment(StrToInt(edit1.Text),edit6.Text);
+end;
+
+procedure TForm1.Button6Click(Sender: TObject);
+begin
+  if SaveDialog1.Execute then BVN.savetofile(SaveDialog1.FileName);
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);

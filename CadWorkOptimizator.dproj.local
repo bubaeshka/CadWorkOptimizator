@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <BorlandProject>
 	<Transactions>
-    <Transaction>1899.12.30 00:00:00.000.848,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.019,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.868,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.659,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.553,C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas=D:\cadworkoptimizator\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.848,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.420,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.553,C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas=D:\cadworkoptimizator\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.998,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.659,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.148,D:\cadworkoptimizator\BVNItem.pas=D:\cadworkoptimizator\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.275,=D:\cadworkoptimizator\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.553,C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.dfm=D:\cadworkoptimizator\Unit1.dfm</Transaction>
