@@ -104,6 +104,10 @@
         </DCCReference>
         <DCCReference Include="optimizator.pas"/>
         <DCCReference Include="BVNItem.pas"/>
+        <DCCReference Include="printPreview.pas">
+            <Form>Form2</Form>
+            <FormType>dfm</FormType>
+        </DCCReference>
         <BuildConfiguration Include="Base">
             <Key>Base</Key>
         </BuildConfiguration>

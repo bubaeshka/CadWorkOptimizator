@@ -31,6 +31,7 @@ type
     ValueListEditor1: TValueListEditor;
     Label1: TLabel;
     Label2: TLabel;
+    Button7: TButton;
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -39,6 +40,7 @@ type
     procedure Button4Click(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -54,6 +56,8 @@ var
 implementation
 
 {$R *.dfm}
+
+uses printPreview;
 
 
 procedure TForm1.Button1Click(Sender: TObject);
@@ -123,6 +127,11 @@ end;
 procedure TForm1.Button6Click(Sender: TObject);
 begin
   if SaveDialog1.Execute then BVN.savetofile(SaveDialog1.FileName);
+end;
+
+procedure TForm1.Button7Click(Sender: TObject);
+begin
+  Form2.Show;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);

@@ -16,7 +16,7 @@ object Form1: TForm1
   object Label1: TLabel
     Left = 627
     Top = 519
-    Width = 145
+    Width = 114
     Height = 15
     Caption = #1053#1086#1074#1072#1103' '#1089#1090#1088#1086#1082#1072' - Insert'
   end
@@ -172,6 +172,18 @@ object Form1: TForm1
     Height = 238
     KeyOptions = [keyEdit, keyAdd]
     TabOrder = 17
+    TitleCaptions.Strings = (
+      #1044#1083#1080#1085#1085#1072
+      #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086)
+  end
+  object Button7: TButton
+    Left = 858
+    Top = 561
+    Width = 75
+    Height = 25
+    Caption = #1055#1077#1095#1072#1090#1100
+    TabOrder = 18
+    OnClick = Button7Click
   end
   object OpenDialog1: TOpenDialog
     Filter = 'BVN '#1092#1072#1081#1083' Hundegger|*.bvn'
