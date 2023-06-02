@@ -1,7 +1,7 @@
 object Form1: TForm1
   Left = 0
   Top = 0
-  Caption = 'Form1'
+  Caption = #1054#1087#1090#1080#1084#1080#1079#1072#1090#1086#1088' CadworkOptimizer'
   ClientHeight = 609
   ClientWidth = 954
   Color = clBtnFace

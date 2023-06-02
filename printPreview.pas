@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, main, Vcl.ExtCtrls, printers;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, main, Vcl.ExtCtrls, printers, System.Generics.Collections;
 
 type
   TForm2 = class(TForm)
@@ -20,6 +20,7 @@ type
     procedure Button3Click(Sender: TObject);
   private
     { Private declarations }
+    ListMetaFiles:TObjectList<TMetaFile>;
     PrevMetafile:TMetafile;
     MetaCanvas:TMetaFileCanvas;
     kScale:real;
@@ -42,77 +43,95 @@ begin
 end;
 
 procedure TForm2.Button2Click(Sender: TObject);
-var tx,ty,dx,dy,nx,ny,otsx,i:integer;
+var tx,ty,dx,dy,nx,ny,otsx,i,j,k,count:integer;
     rr:TRect;
+    new:boolean;
 begin
-  MetaCanvas:=TMetaFileCanvas.Create(PrevMetafile,0);
-  with MetaCanvas do begin
-    Brush.Color:=clWhite;
-    FillRect(Rect(0,0,ww,wh));
-    Brush.Color:=clBlack;
-    Font.Size:=100;
-    MoveTo(ho,vo);
-    otsx:=round(hr/100);
-    tx:=ho;
-    ty:=vo;
-    nx:=ho;
-    ny:=vo;
-    for i:=1 to 4 do begin
-      dx:=round((hr/4))*i;
-      dy:=round((vr/4))*i;
-      Pen.Color:=clRed;
-      Brush.Style:=bsClear;
-      Rectangle(tx,ty,dx,dy);
-      Pen.Color:=clBlack;
-      Font.Color:=clRed;
-      TextOut(dx-700,dy-250,IntToStr(dx)+' '+IntToStr(dy));
-      Font.Color:=clBlack;
-      rr:=Rect(nx,ny,dx,dy);
-      inflateRect(rr,-otsx,-otsx);
-      Rectangle(rr);
-      TextOut(rr.Width-700,rr.Height-250,IntToStr(rr.Width)+' '+IntToStr(rr.Height)+' '+IntTostr(-otsx));
+  if assigned(BVN) then if BVN.getBVNCount>0 then begin
+    i:=1; j:=1; Count:=BVN.getBVNCount-1;
+    otsx:=round(hr/100); tx:=ho; ty:=vo; nx:=ho; ny:=vo; dy:=vo;
+    new:=true;
+    for k := 0 to Count do begin
+      if new then begin
+        tx:=ho; ty:=vo; nx:=ho; ny:=vo; dy:=vo;
+        PrevMetafile:=TMetaFile.Create;
+        PrevMetafile.Width:=ww;
+        PrevMetafile.Height:=wh;
+        MetaCanvas:=TMetaFileCanvas.Create(PrevMetafile,0);
+        with MetaCanvas do begin
+          Brush.Color:=clWhite;
+          FillRect(Rect(0,0,ww,wh));
+          Brush.Color:=clBlack;
+          Font.Size:=100;
+          MoveTo(ho,vo);
+        end;
+        new:=false;
+      end;
+      if i=1 then ny:=dy;
+      dy:=round((vr/8)*j);
+      dx:=round((hr/3))*i;
+      with MetaCanvas do begin
+        Pen.Color:=clRed;
+        Brush.Style:=bsClear;
+        Rectangle(tx,ty,dx,dy);
+        Pen.Color:=clBlack;
+        Font.Color:=clRed;
+        //TextOut(dx-850,dy-250,IntToStr(dx)+' '+IntToStr(dy)+' '+IntToStr(k));
+        TextOut(dx-950,dy-550,BVN.getBVNItemPartnumber(k));
+        Font.Color:=clBlack;
+        rr:=Rect(nx,ny,dx,dy);
+        inflateRect(rr,-otsx,-otsx);
+        Rectangle(rr);
+        TextOut(rr.Right-1400,rr.Bottom-250,copy(BVN.getBVNItemComment(k),1,20));
+      end;
       nx:=dx;
-      ny:=dy;
+      i:=i+1;
+      if i>3 then begin i:=1; j:=j+1; nx:=ho; end;
+      if (j>8) or ((k=Count) and ((k mod 23)<>0)) then begin
+        new:=true;
+        j:=1;
+        MetaCanvas.Free;
+        ListMetaFiles.Add(PrevMetaFile);
+      end;
     end;
-    //tx:=Random(ww); ty:=Random(wh);
-    LineTo(ww,wh);
+    Image1.Canvas.StretchDraw(Rect(0,0,Image1.Width,Image1.Height),ListMetaFiles[0]);
     Label1.Caption:=IntToStr(ww)+' '+IntToStr(wh);
   end;
-  MetaCanvas.Free;
-
-  Image1.Canvas.StretchDraw(Rect(0,0,Image1.Width,Image1.Height),PrevMetaFile);
-  //Image1.Picture.Metafile:=PrevMetaFile;
 end;
 
 procedure TForm2.Button3Click(Sender: TObject);
+var i:integer;
 begin
   try
     Printer.BeginDoc;
-    Printer.Canvas.StretchDraw(Rect(0,0,ww,wh),PrevMetaFile);
+    i:=0;
+    if assigned(ListMetaFiles) then if ListMetaFiles.Count>0 then
+      for var Enum in ListMetaFiles do begin
+        if i<>0 then Printer.NewPage;
+        Printer.Canvas.StretchDraw(Rect(0,0,ww,wh),Enum);
+        inc(i);
+    end;
+  finally
     Printer.EndDoc;
-  except
-    on E: EPrinter do ShowMessage('Ошибка печати: '+E.Message);
   end;
 end;
 
 procedure TForm2.FormCreate(Sender: TObject);
 begin
-  PrevMetafile:=TMetaFile.Create;
+  ListMetaFiles:=TObjectList<TMetaFile>.Create(true);
   ww:=GetDeviceCaps(Printer.Handle,PHYSICALWIDTH);
   wh:=GetDeviceCaps(Printer.Handle,PHYSICALHEIGHT);
   hr:=GetDeviceCaps(Printer.Handle,HORZRES);
   vr:=GetDeviceCaps(Printer.Handle,VERTRES);
   ho:=GetDeviceCaps(Printer.Handle,PHYSICALOFFSETX);
   vo:=GetDeviceCaps(Printer.Handle,PHYSICALOFFSETY);
-  PrevMetafile.Width:=ww;
-  PrevMetafile.Height:=wh;
   kScale:=GetDeviceCaps(Printer.Handle,LOGPIXELSX)/Screen.PixelsPerInch;
   Label1.Caption:=FloatToStr(kScale);
 end;
 
 procedure TForm2.FormDestroy(Sender: TObject);
 begin
-  PrevMetafile.Free;
+  ListMetaFiles.Free;
 end;
 
 end.
