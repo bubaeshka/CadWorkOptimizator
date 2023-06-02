@@ -139,13 +139,14 @@ procedure TForm1.FormCreate(Sender: TObject);
 var xx:TStrings;
 begin
   //Ini:=TIniFile.Create(ExtractFileDir(Application.ExeName)+'\config.ini');
-  ValueListEditor1.Strings.LoadFromFile(ExtractFileDir(Application.ExeName)+'\config.ini');
+  MaxFileRecords:=500000;
+  if FileExists(ExtractFileDir(Application.ExeName)+'\config.ini') then
+    ValueListEditor1.Strings.LoadFromFile(ExtractFileDir(Application.ExeName)+'\config.ini');
  // try
   //  MaxFileRecords:=Ini.ReadInteger('File','MaxFileRecords',500000);
   //finally
   //  Ini.Free;
   //end;
-  MaxFileRecords:=500000;
 end;
 
 procedure TForm1.FormDestroy(Sender: TObject);
