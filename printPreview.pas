@@ -4,27 +4,32 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, main, Vcl.ExtCtrls, printers, System.Generics.Collections;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, main, Vcl.ExtCtrls, printers, System.Generics.Collections,
+  Vcl.Buttons;
 
 type
   TForm2 = class(TForm)
     Button1: TButton;
     Image1: TImage;
-    Button2: TButton;
     Label1: TLabel;
     Button3: TButton;
+    BitBtn1: TBitBtn;
+    BitBtn2: TBitBtn;
     procedure Button1Click(Sender: TObject);
-    procedure Button2Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure Button3Click(Sender: TObject);
+    procedure BitBtn1Click(Sender: TObject);
+    procedure BitBtn2Click(Sender: TObject);
+    procedure FormShow(Sender: TObject);
   private
     { Private declarations }
     ListMetaFiles:TObjectList<TMetaFile>;
     PrevMetafile:TMetafile;
     MetaCanvas:TMetaFileCanvas;
     kScale:real;
-    ww,wh,hr,vr,ho,vo:integer;
+    ww,wh,hr,vr,ho,vo,curr:integer;
+    procedure formReport;
   public
     { Public declarations }
   end;
@@ -37,16 +42,34 @@ implementation
 
 {$R *.dfm}
 
+procedure TForm2.BitBtn1Click(Sender: TObject);
+begin
+  if (curr-1)>=0 then begin
+    curr:=curr-1;
+    Image1.Canvas.StretchDraw(Rect(0,0,Image1.Width,Image1.Height),ListMetaFiles[curr]);
+  end;
+end;
+
+procedure TForm2.BitBtn2Click(Sender: TObject);
+begin
+  if ListMetaFiles.Count>(curr+1) then begin
+    curr:=curr+1;
+    Image1.Canvas.StretchDraw(Rect(0,0,Image1.Width,Image1.Height),ListMetaFiles[curr]);
+  end;
+end;
+
 procedure TForm2.Button1Click(Sender: TObject);
 begin
   Form2.Close;
 end;
 
-procedure TForm2.Button2Click(Sender: TObject);
+procedure TForm2.formReport;
 var tx,ty,dx,dy,nx,ny,otsx,i,j,k,count:integer;
     rr:TRect;
     new:boolean;
 begin
+  ListMetaFiles.Free;
+  ListMetaFiles:=TObjectList<TMetaFile>.Create(true);
   if assigned(BVN) then if BVN.getBVNCount>0 then begin
     i:=1; j:=1; Count:=BVN.getBVNCount-1;
     otsx:=round(hr/100); tx:=ho; ty:=vo; nx:=ho; ny:=vo; dy:=vo;
@@ -99,6 +122,11 @@ begin
   end;
 end;
 
+procedure TForm2.FormShow(Sender: TObject);
+begin
+  formReport;
+end;
+
 procedure TForm2.Button3Click(Sender: TObject);
 var i:integer;
 begin
@@ -118,7 +146,6 @@ end;
 
 procedure TForm2.FormCreate(Sender: TObject);
 begin
-  ListMetaFiles:=TObjectList<TMetaFile>.Create(true);
   ww:=GetDeviceCaps(Printer.Handle,PHYSICALWIDTH);
   wh:=GetDeviceCaps(Printer.Handle,PHYSICALHEIGHT);
   hr:=GetDeviceCaps(Printer.Handle,HORZRES);
@@ -127,6 +154,7 @@ begin
   vo:=GetDeviceCaps(Printer.Handle,PHYSICALOFFSETY);
   kScale:=GetDeviceCaps(Printer.Handle,LOGPIXELSX)/Screen.PixelsPerInch;
   Label1.Caption:=FloatToStr(kScale);
+  curr:=0;
 end;
 
 procedure TForm2.FormDestroy(Sender: TObject);

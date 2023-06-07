@@ -64,9 +64,10 @@ uses printPreview;
 procedure TForm1.Button1Click(Sender: TObject);
 begin
   if OpenDialog1.Execute then begin
-    if not assigned(BVN) then
+    BVN.Free;
     try
       BVN:=TBVN.Create(OpenDialog1.FileName, MaxFileRecords);
+      Form1.Caption:='Оптимизатор CadworkOptimizer '+OpenDialog1.FileName;
     except
       //идет работа под отладчиком и стоит флажок Stop on Delfi exceptions, поэтому увидеть можно запустив exe-шник
       on E: EInOutError do ShowMessage(E.Message); 
