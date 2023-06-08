@@ -94,10 +94,11 @@ begin
 end;
 
 procedure TForm1.Button3Click(Sender: TObject);
-var opt:TDictionary<integer,integer>;
+var opt, spez:TDictionary<integer,integer>;
     i:integer;
 begin
   opt:=TDictionary<integer,integer>.Create;
+  spez:=TDictionary<integer,integer>.Create;
   {opt.Add(63000,-999);
   opt.Add(80000,-999);
   opt.Add(93000,-999);
@@ -108,12 +109,15 @@ begin
     opt.Add(StrToInt(ValueListEditor1.Cells[0,i])*10,StrToInt(ValueListEditor1.Cells[1,i]));
 
   try
-    BVN.optimize(opt,50, CheckBox1.Checked, Memo4.Lines);
+    BVN.optimize(opt, spez, 50, CheckBox1.Checked, Memo4.Lines);
   except
     on E: EnotImplemented do ShowMessage(E.Message);
     on E: EArgumentException do ShowMessage(E.Message);
   end;
+  for var Enum in Spez do Memo4.Lines.AddPair(inttostr(Enum.Key div 10),inttostr(Enum.Value));
+
   opt.Free;
+  spez.Free;
 end;
 
 procedure TForm1.Button4Click(Sender: TObject);

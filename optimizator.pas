@@ -28,7 +28,7 @@ type
     procedure savetofile(filenames:TFileName);
     function getBVNCount:Integer;
     function getBVNItemID(numo:integer):Integer;
-    procedure optimize(zagotovki:TDictionary<integer,integer>; cut:integer; modf:boolean; spravka:TStrings);
+    procedure optimize(zagotovki,spezf:TDictionary<integer,integer>; cut:integer; modf:boolean; spravka:TStrings);
   end;
 
 implementation
@@ -146,7 +146,7 @@ end;
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //оптимизатор
-procedure TBVN.optimize(zagotovki: TDictionary<integer,integer>; cut:integer; modf:boolean; spravka:TStrings);
+procedure TBVN.optimize(zagotovki, spezf: TDictionary<integer,integer>; cut:integer; modf:boolean; spravka:TStrings);
 var zz,xx,tt:TList<TPair<integer,integer>>;
     el:TPair<integer,integer>;
     ex:TPair<integer,String>;
@@ -156,7 +156,9 @@ var zz,xx,tt:TList<TPair<integer,integer>>;
     i,k,j,ostatok,iterations,ostatok2,minkey,minostatok,zagminostatok:integer;
     firstmin,lastmin,firstitem,lastitem,keyzag,m,n:integer;
     uspeh:boolean;
-begin
+begin                                            
+  //проверка входных параметров
+  //if spezf=nil then raise EArgumentException.Create('неверный аргумент спецификации');
   //функция сортировки по убыванию длинны изделия
   Comparison:=
     function(const Left, Rigth: TPair<integer,integer>): integer
@@ -175,6 +177,7 @@ begin
   outt:=TList<TPair<integer, string>>.Create; //временный выходной список
   tt:=TList<TPair<integer, integer>>.Create; //временный список, для оптимизации каждой заготовки
   raskroi:=TList<TPair<integer, string>>.Create; //окончательный выходной список
+  keyzag:=0;
   //временно используем TDictionary, поэтому копируем входной словарь из параметра в список заготовок
   //а наверное, не временно, так как создание и уничтожение словаря за телом процедуры, и управление памятью там-же
   for var Enum in zagotovki do zz.Add(Enum);
@@ -291,6 +294,9 @@ begin
           ex.Value:=ex.Value+' послостаток:'+inttostr(zagminostatok)+' %: '
           +floattostrf(((zagminostatok/zz[keyzag].Key)*100),FFfixed,3,2);
           outt[k]:=ex;
+          //создание спецификации
+          if not spezf.ContainsKey(zz[keyzag].key) then spezf.Add(zz[keyzag].Key,1) else  
+             spezf.AddOrSetValue(zz[keyzag].Key,spezf[zz[keyzag].Key]+1);
         end;
         //ну ка
         //тест
