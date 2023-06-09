@@ -339,7 +339,7 @@ begin
     spravka.Add('');
     spravka.Add('------------------------------------------------------------------------------------------');
     spravka.Add('Всего длинна: '+floattostr(fulllong/10)+' Всего остаток '+floattostr(fullostatok/10)
-    +' | Остаток в % '+floattostr((fullostatok/fulllong)*100));
+    +' | Остаток в % '+floattostrf(((fullostatok/fulllong)*100),FFfixed,3,2));
     spravka.Add('------------------------------------------------------------------------------------------');
     spravka.Add('');
     //попытка сортировки списка
