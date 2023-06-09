@@ -22,14 +22,14 @@ object Form2: TForm2
     Height = 780
   end
   object Label1: TLabel
-    Left = 16
-    Top = 19
-    Width = 34
+    Left = 360
+    Top = 18
+    Width = 53
     Height = 15
-    Caption = 'Label1'
+    Caption = #1057#1090#1088#1072#1085#1080#1094#1072
   end
   object Button1: TButton
-    Left = 192
+    Left = 16
     Top = 8
     Width = 75
     Height = 25
@@ -38,7 +38,7 @@ object Form2: TForm2
     OnClick = Button1Click
   end
   object Button3: TButton
-    Left = 296
+    Left = 112
     Top = 8
     Width = 75
     Height = 25
@@ -115,5 +115,9 @@ object Form2: TForm2
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF}
     TabOrder = 3
     OnClick = BitBtn2Click
+  end
+  object PrintDialog1: TPrintDialog
+    Left = 200
+    Top = 8
   end
 end

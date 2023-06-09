@@ -11,10 +11,11 @@ type
   TForm2 = class(TForm)
     Button1: TButton;
     Image1: TImage;
-    Label1: TLabel;
     Button3: TButton;
     BitBtn1: TBitBtn;
     BitBtn2: TBitBtn;
+    PrintDialog1: TPrintDialog;
+    Label1: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
@@ -47,6 +48,7 @@ begin
   if (curr-1)>=0 then begin
     curr:=curr-1;
     Image1.Canvas.StretchDraw(Rect(0,0,Image1.Width,Image1.Height),ListMetaFiles[curr]);
+    Label1.Caption:='Страница '+inttostr(curr+1)+' из '+inttostr(ListMetaFiles.Count);
   end;
 end;
 
@@ -55,6 +57,7 @@ begin
   if ListMetaFiles.Count>(curr+1) then begin
     curr:=curr+1;
     Image1.Canvas.StretchDraw(Rect(0,0,Image1.Width,Image1.Height),ListMetaFiles[curr]);
+    Label1.Caption:='Страница '+inttostr(curr+1)+' из '+inttostr(ListMetaFiles.Count);
   end;
 end;
 
@@ -118,29 +121,32 @@ begin
       end;
     end;
     Image1.Canvas.StretchDraw(Rect(0,0,Image1.Width,Image1.Height),ListMetaFiles[0]);
-    Label1.Caption:=IntToStr(ww)+' '+IntToStr(wh);
   end;
 end;
 
 procedure TForm2.FormShow(Sender: TObject);
 begin
-  formReport;
+    formReport;
+    if assigned(ListMetaFiles) then
+    Label1.Caption:='Страница '+inttostr(curr+1)+' из '+inttostr(ListMetaFiles.Count);
 end;
 
 procedure TForm2.Button3Click(Sender: TObject);
 var i:integer;
 begin
-  try
-    Printer.BeginDoc;
-    i:=0;
-    if assigned(ListMetaFiles) then if ListMetaFiles.Count>0 then
-      for var Enum in ListMetaFiles do begin
-        if i<>0 then Printer.NewPage;
-        Printer.Canvas.StretchDraw(Rect(0,0,ww,wh),Enum);
-        inc(i);
+  if PrintDialog1.Execute then begin
+    try
+      Printer.BeginDoc;
+      i:=0;
+      if assigned(ListMetaFiles) then if ListMetaFiles.Count>0 then
+        for var Enum in ListMetaFiles do begin
+          if i<>0 then Printer.NewPage;
+          Printer.Canvas.StretchDraw(Rect(0,0,ww,wh),Enum);
+          inc(i);
+      end;
+    finally
+      Printer.EndDoc;
     end;
-  finally
-    Printer.EndDoc;
   end;
 end;
 
@@ -153,7 +159,6 @@ begin
   ho:=GetDeviceCaps(Printer.Handle,PHYSICALOFFSETX);
   vo:=GetDeviceCaps(Printer.Handle,PHYSICALOFFSETY);
   kScale:=GetDeviceCaps(Printer.Handle,LOGPIXELSX)/Screen.PixelsPerInch;
-  Label1.Caption:=FloatToStr(kScale);
   curr:=0;
 end;
 
