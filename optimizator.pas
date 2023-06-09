@@ -154,7 +154,7 @@ var zz,xx,tt:TList<TPair<integer,integer>>;
     temp:String;
     outt,raskroi:TList<TPair<Integer, String>>;
     i,k,j,ostatok,iterations,ostatok2,minkey,minostatok,zagminostatok:integer;
-    firstmin,lastmin,firstitem,lastitem,keyzag,m,n:integer;
+    firstmin,lastmin,firstitem,lastitem,keyzag,m,n, fulllong, fullostatok:integer;
     uspeh:boolean;
 begin                                            
   //проверка входных параметров
@@ -200,6 +200,7 @@ begin
     //цикл раскроя, пока не кончились изделия
     i:=0; //счётчик раскроя
     minostatok:=0; //инициализация для компилятора
+    fulllong:=0; fullostatok:=0;
     //пока входной список-изделий не очиститься полностью
     while xx.Count>0 do begin
       uspeh:=false;   //наличие хотя-бы одного раскроя
@@ -215,8 +216,9 @@ begin
           //формируем новый элемент, в Key ID изделия
           ex.Key:=tt[0].Key;
           //в значении строка с номером заготовки
-          ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+inttostr(tt[0].Value)+' отп:'+inttostr(cut)
-          +' остат:'+IntToStr(zz[k].Key-tt[0].Value-cut)+' F ';
+          ex.Value:='#'+IntToStr(i)+' в заг: '+floattostr(zz[k].Key/10)+' длин: '+
+            floattostr(tt[0].Value/10)+' отп: '+floattostr(cut/10)
+            +' остат: '+FloatToStr((zz[k].Key-tt[0].Value-cut)/10)+' F ';
           //вычисляем остаток и добавляем 1-й, самый длинный элемент во временный выходной список
           ostatok:=zz[k].Key-tt[0].Value-cut;
           outt.Add(ex);
@@ -235,13 +237,14 @@ begin
               iterations:=iterations+1;
               ostatok2:=ostatok2-tt[tt.Count-iterations].Value-cut;
               if ostatok2<0 then break;
-            end;  
+            end;
             //добавляем в раскрой все мелкие элементы, котторые влезли, кроме последнего
             for j := 1 to iterations-2 do begin
               ex.Key:=tt[tt.Count-j].Key;
               ostatok:=ostatok-tt[tt.Count-j].Value-cut;
-              ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(tt[tt.Count-j].Value)+
-              ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok)+' M ';
+              ex.Value:='#'+IntToStr(i)+' в заг:'+floattostr(zz[k].Key/10)+' длин:'+
+                floattostr(tt[tt.Count-j].Value/10)+' отп: '+floattostr(cut/10)+' остат: '
+                +floattostr(ostatok/10)+' M ';
               outt.Add(ex);
               tt.Delete(tt.Count-j);
               if tt.Count<=0 then break;
@@ -263,8 +266,8 @@ begin
           if minkey<>0 then begin
             ex.Key:=tt[minkey].Key;
             ostatok:=ostatok-tt[minkey].Value-cut;
-            ex.Value:='#'+IntToStr(i)+' в заг:'+inttostr(zz[k].Key)+' длин:'+IntToStr(tt[minkey].Value)+
-            ' отп:'+inttostr(cut)+' остат:'+IntToStr(ostatok)+' O ';
+            ex.Value:='#'+IntToStr(i)+' в заг: '+floattostr(zz[k].Key/10)+' длин: '+
+              FloatToStr(tt[minkey].Value/10)+' отп: '+Floattostr(cut/10)+' остат: '+FloatToStr(ostatok/10)+' O ';
             outt.Add(ex);
             tt.Delete(minkey);
             if tt.Count<=0 then break;
@@ -291,17 +294,19 @@ begin
         //ну ка проверим
         if k=lastmin then begin
           ex:=outt[k];
-          ex.Value:=ex.Value+' послостаток:'+inttostr(zagminostatok)+' %: '
-          +floattostrf(((zagminostatok/zz[keyzag].Key)*100),FFfixed,3,2);
+          fulllong:=fulllong+zz[keyzag].Key;
+          fullostatok:=fullostatok+zagminostatok;
+          ex.Value:=ex.Value+' кон.остаток: '+floattostr(zagminostatok/10)+' | '
+          +floattostrf(((zagminostatok/zz[keyzag].Key)*100),FFfixed,3,2)+' % ';
           outt[k]:=ex;
           //создание спецификации
-          if not spezf.ContainsKey(zz[keyzag].key) then spezf.Add(zz[keyzag].Key,1) else  
+          if not spezf.ContainsKey(zz[keyzag].key) then spezf.Add(zz[keyzag].Key,1) else
              spezf.AddOrSetValue(zz[keyzag].Key,spezf[zz[keyzag].Key]+1);
         end;
         //ну ка
         //тест
           ex:=outt[k];
-          ex.Value:=inttostr(i+1)+'-'+inttostr(k-firstmin+1)+' '+inttostr(zz[keyzag].Key)+' |'
+          ex.Value:=inttostr(i+1)+'-'+inttostr(k-firstmin+1)+' '+floattostr(zz[keyzag].Key/10)+' |'
           +inttostr(ex.Key)+'| '+ex.Value;
           outt[k]:=ex;
         //тест
@@ -326,7 +331,17 @@ begin
       i:=i+1;
     end;
     //интерфейсная часть, для отладки
-    for var Enum in raskroi do spravka.Add(Enum.Value);
+    for var Enum in raskroi do begin
+      spravka.Add(Enum.Value);
+      if pos(' кон.остаток: ',Enum.Value)<>0 then
+      spravka.Add('------------------------------------------------------------------------------------------------');
+    end;
+    spravka.Add('');
+    spravka.Add('------------------------------------------------------------------------------------------');
+    spravka.Add('Всего длинна: '+floattostr(fulllong/10)+' Всего остаток '+floattostr(fullostatok/10)
+    +' | Остаток в % '+floattostr((fullostatok/fulllong)*100));
+    spravka.Add('------------------------------------------------------------------------------------------');
+    spravka.Add('');
     //попытка сортировки списка
     for m:=0 to raskroi.Count-1 do
       for n:=0 to Items.Count-1 do if raskroi[m].Key=items[n].getID then begin

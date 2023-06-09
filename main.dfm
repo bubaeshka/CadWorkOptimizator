@@ -97,6 +97,22 @@ object Form1: TForm1
     Height = 15
     Caption = '           '
   end
+  object Label13: TLabel
+    Left = 488
+    Top = 572
+    Width = 59
+    Height = 15
+    Caption = #1054#1090#1087#1080#1083', '#1084#1084
+  end
+  object Label14: TLabel
+    Left = 8
+    Top = 540
+    Width = 562
+    Height = 15
+    Caption = 
+      'F - '#1087#1077#1088#1074#1086#1077' '#1080#1079#1076#1077#1083#1080#1077' '#1074' '#1088#1072#1089#1082#1088#1086#1077', M - '#1076#1086#1073#1072#1074#1083#1077#1085#1085#1099#1077' '#1080#1079#1076#1077#1083#1080#1103' ('#1084#1086#1076#1080#1092'. '#1072#1083 +
+      #1075'), '#1054' - '#1086#1087#1090#1080#1084#1080#1079#1080#1088#1086#1074#1072#1085#1085#1086#1077' '#1080#1079#1076#1077#1083#1080#1077
+  end
   object Button1: TButton
     Left = 8
     Top = 568
@@ -141,11 +157,12 @@ object Form1: TForm1
     Top = 254
     Width = 593
     Height = 280
+    ScrollBars = ssBoth
     TabOrder = 5
   end
   object Button4: TButton
     Left = 714
-    Top = 576
+    Top = 151
     Width = 75
     Height = 25
     Caption = 'Button4'
@@ -154,7 +171,7 @@ object Form1: TForm1
   end
   object Edit6: TEdit
     Left = 795
-    Top = 578
+    Top = 153
     Width = 57
     Height = 23
     TabOrder = 7
@@ -162,7 +179,7 @@ object Form1: TForm1
   end
   object Button5: TButton
     Left = 858
-    Top = 576
+    Top = 151
     Width = 75
     Height = 25
     Caption = 'Button5'
@@ -170,7 +187,7 @@ object Form1: TForm1
     OnClick = Button5Click
   end
   object Button6: TButton
-    Left = 438
+    Left = 858
     Top = 568
     Width = 75
     Height = 25
@@ -198,11 +215,11 @@ object Form1: TForm1
       #1050#1086#1083#1080#1095#1077#1089#1090#1074#1086)
   end
   object Button7: TButton
-    Left = 526
+    Left = 726
     Top = 568
-    Width = 75
+    Width = 115
     Height = 25
-    Caption = #1055#1077#1095#1072#1090#1100
+    Caption = #1055#1077#1095#1072#1090#1100' '#1090#1072#1073#1083#1080#1095#1077#1082
     TabOrder = 12
     OnClick = Button7Click
   end
@@ -278,11 +295,19 @@ object Form1: TForm1
   end
   object Edit1: TEdit
     Left = 671
-    Top = 578
+    Top = 153
     Width = 37
     Height = 23
     TabOrder = 15
     Text = 'Edit1'
+  end
+  object Edit2: TEdit
+    Left = 563
+    Top = 569
+    Width = 72
+    Height = 23
+    TabOrder = 16
+    Text = '5'
   end
   object OpenDialog1: TOpenDialog
     Filter = 'BVN '#1092#1072#1081#1083' Hundegger|*.bvn'

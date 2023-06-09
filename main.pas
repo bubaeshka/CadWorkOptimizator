@@ -39,6 +39,9 @@ type
     Label12: TLabel;
     BitBtn2: TBitBtn;
     Edit1: TEdit;
+    Edit2: TEdit;
+    Label13: TLabel;
+    Label14: TLabel;
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -132,26 +135,23 @@ end;
 
 procedure TForm1.Button3Click(Sender: TObject);
 var opt:TDictionary<integer,integer>;
-    i:integer;
+    i,otp:integer;
 begin
   Memo4.Clear;
+  if Trystrtoint(Edit2.Text,otp) then otp:=otp*10 else otp:=50;
+
   opt:=TDictionary<integer,integer>.Create;
-  {opt.Add(63000,-999);
-  opt.Add(80000,-999);
-  opt.Add(93000,-999);
-  opt.Add(72000,1);
-  opt.Add(54000,1);
-  opt.Add(123000,2);}
   for i:=1 to ValueListEditor1.RowCount-1 do
     opt.Add(StrToInt(ValueListEditor1.Cells[0,i])*10,StrToInt(ValueListEditor1.Cells[1,i]));
 
   try
-    BVN.optimize(opt, spez, 50, CheckBox1.Checked, Memo4.Lines);
+    BVN.optimize(opt, spez, otp, CheckBox1.Checked, Memo4.Lines);
     ShowItem(0);
   except
     on E: EnotImplemented do ShowMessage(E.Message);
     on E: EArgumentException do ShowMessage(E.Message);
   end;
+  Memo4.Lines.Add('-------------------------Спецификация------------------------------------------------');
   for var Enum in Spez do Memo4.Lines.AddPair(inttostr(Enum.Key div 10),inttostr(Enum.Value));
 
   opt.Free;
