@@ -148,6 +148,7 @@ begin
   opti:=TDictionary<integer,integer>.Create;
   for i:=1 to ValueListEditor1.RowCount-1 do
     opt.Add(StrToInt(ValueListEditor1.Cells[0,i])*10,StrToInt(ValueListEditor1.Cells[1,i]));
+  if CheckBox2.Checked then
   for i:=1 to ValueListEditor2.RowCount-1 do
     opti.Add(StrToInt(ValueListEditor2.Cells[0,i])*10,StrToInt(ValueListEditor2.Cells[1,i]));
 
