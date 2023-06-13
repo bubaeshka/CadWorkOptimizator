@@ -2,24 +2,25 @@
 <BorlandProject>
 	<Transactions>
     <Transaction>1899.12.30 00:00:00.000.019,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.849,D:\cadworkoptimizator\CadWorkOptimizator.dproj=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Project1.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.133,D:\cadworkoptimizator\printPreview.pas=D:\cadworkoptimizator\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.808,D:\cadworkoptimizator\main.dfm=D:\cadworkoptimizator\Unit1.dfm</Transaction>
     <Transaction>1899.12.30 00:00:00.000.848,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.148,D:\cadworkoptimizator\BVNItem.pas=D:\cadworkoptimizator\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.849,C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Project1.dproj=D:\cadworkoptimizator\CadWorkOptimizator.dproj</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.868,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.553,C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas=D:\cadworkoptimizator\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.659,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.420,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.998,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.808,D:\cadworkoptimizator\Unit1.pas=D:\cadworkoptimizator\main.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.420,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.659,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.868,=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.275,=D:\cadworkoptimizator\Unit1.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.553,C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.dfm=D:\cadworkoptimizator\Unit1.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.808,D:\cadworkoptimizator\Unit1.dfm=D:\cadworkoptimizator\main.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.133,D:\cadworkoptimizator\Unit2.pas=D:\cadworkoptimizator\printPreview.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.133,D:\cadworkoptimizator\Unit2.dfm=D:\cadworkoptimizator\printPreview.dfm</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.051,=D:\cadworkoptimizator\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.553,D:\cadworkoptimizator\Unit1.pas=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.148,D:\cadworkoptimizator\Unit1.pas=D:\cadworkoptimizator\BVNItem.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.553,D:\cadworkoptimizator\Unit1.dfm=C:\Users\Admin\Documents\Embarcadero\Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.500,D:\cadworkoptimizator\optimizator.pas=D:\cadworkoptimizator\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.808,D:\cadworkoptimizator\main.pas=D:\cadworkoptimizator\Unit1.pas</Transaction>
     <Transaction>1899.12.30 00:00:00.000.911,=D:\cadworkoptimizator\Unit2.pas</Transaction>
-    <Transaction>1899.12.30 00:00:00.000.500,D:\cadworkoptimizator\Unit2.pas=D:\cadworkoptimizator\optimizator.pas</Transaction>
-  </Transactions>  <ProjectSortOrder AutoSort="0" SortType="0">
+    <Transaction>1899.12.30 00:00:00.000.051,=D:\cadworkoptimizator\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.133,D:\cadworkoptimizator\printPreview.dfm=D:\cadworkoptimizator\Unit2.dfm</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
     <File Path="BVNItem.pas"/>
     <File Path="main.pas"/>
     <File Path="main.dfm"/>

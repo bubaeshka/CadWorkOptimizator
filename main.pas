@@ -42,6 +42,9 @@ type
     Edit2: TEdit;
     Label13: TLabel;
     Label14: TLabel;
+    ValueListEditor2: TValueListEditor;
+    CheckBox2: TCheckBox;
+    Edit3: TEdit;
     procedure Button1Click(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
     procedure FormCreate(Sender: TObject);
@@ -134,18 +137,22 @@ begin
 end;
 
 procedure TForm1.Button3Click(Sender: TObject);
-var opt:TDictionary<integer,integer>;
-    i,otp:integer;
+var opt, opti:TDictionary<integer,integer>;
+    i,otp, nc:integer;
+    zzz:boolean;
 begin
   Memo4.Clear;
-  if Trystrtoint(Edit2.Text,otp) then otp:=otp*10 else otp:=50;
-
+  if Trystrtoint(Edit2.Text,otp) then otp:=otp*10 else otp:=60;
+  if not Trystrtoint(Edit3.Text,nc) then nc:=0;
   opt:=TDictionary<integer,integer>.Create;
+  opti:=TDictionary<integer,integer>.Create;
   for i:=1 to ValueListEditor1.RowCount-1 do
     opt.Add(StrToInt(ValueListEditor1.Cells[0,i])*10,StrToInt(ValueListEditor1.Cells[1,i]));
+  for i:=1 to ValueListEditor2.RowCount-1 do
+    opti.Add(StrToInt(ValueListEditor2.Cells[0,i])*10,StrToInt(ValueListEditor2.Cells[1,i]));
 
   try
-    BVN.optimize(opt, spez, otp, CheckBox1.Checked, Memo4.Lines);
+    BVN.optimize(opt, opti, spez, otp, nc, CheckBox1.Checked, CheckBox2.Checked, Memo4.Lines);
     ShowItem(0);
   except
     on E: EnotImplemented do ShowMessage(E.Message);
@@ -155,7 +162,7 @@ begin
   for var Enum in Spez do Memo4.Lines.AddPair(inttostr(Enum.Key div 10),inttostr(Enum.Value));
 
   opt.Free;
-
+  opti.Free;
 end;
 
 procedure TForm1.Button4Click(Sender: TObject);

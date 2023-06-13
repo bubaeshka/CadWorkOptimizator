@@ -28,7 +28,7 @@ type
     procedure savetofile(filenames:TFileName);
     function getBVNCount:Integer;
     function getBVNItemID(numo:integer):Integer;
-    procedure optimize(zagotovki,spezf:TDictionary<integer,integer>; cut:integer; modf:boolean; spravka:TStrings);
+    procedure optimize(zagotovki,conzagotovki, spezf:TDictionary<integer,integer>; cut, kxx:integer; modf, secspis:boolean; spravka:TStrings);
   end;
 
 implementation
@@ -146,8 +146,8 @@ end;
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 //оптимизатор
-procedure TBVN.optimize(zagotovki, spezf: TDictionary<integer,integer>; cut:integer; modf:boolean; spravka:TStrings);
-var zz,xx,tt:TList<TPair<integer,integer>>;
+procedure TBVN.optimize(zagotovki, conzagotovki, spezf: TDictionary<integer,integer>; cut, kxx:integer; modf, secspis:boolean; spravka:TStrings);
+var zz,zx,xx,tt:TList<TPair<integer,integer>>;
     el:TPair<integer,integer>;
     ex:TPair<integer,String>;
     Comparison, Comparison1:TComparison<TPair<integer,integer>>;
@@ -155,7 +155,7 @@ var zz,xx,tt:TList<TPair<integer,integer>>;
     outt,raskroi:TList<TPair<Integer, String>>;
     i,k,j,ostatok,iterations,ostatok2,minkey,minostatok,zagminostatok:integer;
     firstmin,lastmin,firstitem,lastitem,keyzag,m,n, fulllong, fullostatok:integer;
-    uspeh:boolean;
+    uspeh,copy:boolean;
 begin                                            
   //проверка входных параметров
   //if spezf=nil then raise EArgumentException.Create('неверный аргумент спецификации');
@@ -174,6 +174,7 @@ begin
   //конец функций сортировки
   xx:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison));  //изделия
   zz:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison1)); //заготовки
+  zx:=TList<TPair<integer,integer>>.Create(TComparer<TPair<integer,integer>>.Construct(Comparison1)); //заготовки2
   outt:=TList<TPair<integer, string>>.Create; //временный выходной список
   tt:=TList<TPair<integer, integer>>.Create; //временный список, для оптимизации каждой заготовки
   raskroi:=TList<TPair<integer, string>>.Create; //окончательный выходной список
@@ -181,8 +182,10 @@ begin
   //временно используем TDictionary, поэтому копируем входной словарь из параметра в список заготовок
   //а наверное, не временно, так как создание и уничтожение словаря за телом процедуры, и управление памятью там-же
   for var Enum in zagotovki do zz.Add(Enum);
+  for var Enum in conzagotovki do zx.Add(Enum);
   //поехали дальше
   zz.Sort; //сортируем заготовку по убыванию длинны
+  zx.Sort;   copy:=false;
   //блок освобождения ресурсов, при возникновении ошибки
   try
     //блок копирования изделий из поля-класса во входной список
@@ -329,6 +332,12 @@ begin
         if el.Value=0 then zz.Delete(keyzag);
       end;
       i:=i+1;
+      if (xx.Count=kxx) and not copy and secspis then begin
+         zz.Clear;
+         for var Enum in zx do zz.Add(Enum);
+         zx.Free;
+         copy:=true;
+      end;
     end;
     //интерфейсная часть, для отладки
     for var Enum in raskroi do begin
