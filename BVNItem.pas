@@ -86,8 +86,8 @@ constructor TBVNItem.Create(inputlist: TStringList);
      end;
      //6 символов номер детали, потом пробел
      delete(inps,1,7);
-     //13 пробелов
-     delete(inps,1,13);
+     //12 пробелов
+     delete(inps,1,12);
      //4 символа - это количество изделий
      try
        in_quantity:=StrToInt(trim(copy(inps,1,LQUANTITY)));
